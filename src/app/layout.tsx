@@ -15,6 +15,10 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: { default: t.brand, template: `%s · ${t.brand}` },
     description: t.tagline,
+    icons: {
+      icon: "/fathershops_img.png",
+      apple: "/fathershops_img.png",
+    },
   };
 }
 

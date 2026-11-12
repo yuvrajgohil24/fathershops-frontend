@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
 import { RemoteImage } from "@/components/RemoteImage";
+import { getCategoryImage } from "@/lib/categoryImages";
 import type { Category } from "@/lib/types";
 
 interface Props {
@@ -13,12 +14,14 @@ interface Props {
  * Modern category card/row with rounded borders, soft hover shadow, and chips.
  */
 export function CategoryRow({ category, label, subcategories }: Props) {
+  const imageUrl = getCategoryImage(category.name || label, category.image);
+
   return (
     <li className="group relative grid grid-cols-[64px_1fr_auto] items-center gap-x-4 gap-y-3 rounded-2xl border border-line bg-paper p-4 mb-4 shadow-2xs transition-all duration-300 hover:border-blue-bright/60 hover:shadow-md sm:grid-cols-[96px_1fr_auto] sm:gap-x-8 sm:p-6 lg:grid-cols-[96px_minmax(0,1fr)_minmax(0,1fr)_auto]">
       <div className="relative aspect-square overflow-hidden rounded-xl bg-paper-2">
         <RemoteImage
-          src={category.image}
-          alt=""
+          src={imageUrl}
+          alt={label}
           fill
           sizes="96px"
           className="object-cover transition-transform duration-300 group-hover:scale-105"

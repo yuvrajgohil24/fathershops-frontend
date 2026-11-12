@@ -1,14 +1,21 @@
+import Image from "next/image";
 import Link from "next/link";
 import { CurrencySwitcher } from "@/components/CurrencySwitcher";
-import { Icon } from "@/components/Icon";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import type { Dictionary } from "@/lib/i18n";
 import type { CurrencyCode, Language } from "@/lib/types";
 
 export function Wordmark({ t }: { t: Dictionary }) {
   return (
-    <span className="flex items-center gap-2">
-      <Icon name="bag" className="size-6 text-blue-bright" />
+    <span className="flex items-center gap-2.5">
+      <Image
+        src="/fathershops_img.png"
+        alt="FatherShops"
+        width={26}
+        height={26}
+        className="size-6.5 shrink-0 object-contain rounded"
+        priority
+      />
       <span className="text-xl font-extrabold tracking-[-0.02em] [font-stretch:85%]">{t.brand}</span>
     </span>
   );
