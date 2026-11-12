@@ -68,42 +68,50 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         ]}
       />
 
-      <div className="grid gap-10 lg:grid-cols-[220px_1fr]">
+      <header className="mb-8 flex flex-wrap items-end justify-between gap-x-8 gap-y-3 border-b-2 border-ink pb-5">
+        <h1 className="display text-6xl sm:text-8xl">{title}</h1>
+        <p className="pb-1 text-sm font-semibold tabular-nums text-muted">
+          {t.productCount(meta.total)}
+          {meta.last_page > 1 && <span className="ms-3 font-normal">{t.pageOf(meta.current_page, meta.last_page)}</span>}
+        </p>
+      </header>
+
+      <div className="grid gap-x-10 gap-y-6 lg:grid-cols-[200px_1fr]">
         {sidebar.length > 0 && (
-          <aside aria-label={t.categories} className="hidden lg:block">
-            <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted">{t.categories}</h2>
-            <ul className="flex flex-col gap-1">
-              {sidebar.map((c) => (
-                <li key={c.id}>
-                  <Link
-                    href={`/categories/${c.id}`}
-                    aria-current={c.id === categoryId ? "page" : undefined}
-                    className={`block rounded-lg px-3 py-2 text-sm transition ${c.parent_id ? "ps-6" : ""} ${
-                      c.id === categoryId ? "bg-ink font-medium text-surface" : "text-muted hover:bg-subtle hover:text-ink"
-                    }`}
-                  >
-                    {c.name ?? t.category(c.id)}
-                  </Link>
-                </li>
-              ))}
+          <nav aria-label={t.categories} className="lg:sticky lg:top-24 lg:self-start">
+            <h2 className="mb-2 hidden text-sm font-semibold lg:block">{t.categories}</h2>
+            <ul className="-mx-4 flex gap-1 overflow-x-auto px-4 pb-1 lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0">
+              {sidebar.map((c) => {
+                const active = c.id === categoryId;
+                return (
+                  <li key={c.id} className="shrink-0">
+                    <Link
+                      href={`/categories/${c.id}`}
+                      aria-current={active ? "page" : undefined}
+                      className={`flex items-center gap-2 rounded-[4px] px-3 py-2 text-sm transition-colors lg:px-2 ${
+                        c.parent_id ? "lg:ps-6" : ""
+                      } ${
+                        active
+                          ? "bg-ink font-semibold text-white"
+                          : "border border-line text-ink-2 hover:border-ink lg:border-transparent lg:hover:border-transparent lg:hover:bg-paper-2"
+                      }`}
+                    >
+                      {c.name ?? t.category(c.id)}
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
-          </aside>
+          </nav>
         )}
 
-        <section>
-          <header className="mb-6 flex flex-wrap items-end justify-between gap-2">
-            <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
-            <p className="text-sm text-muted">{t.productCount(meta.total)}</p>
-          </header>
-
+        <section aria-label={t.products}>
           {products.length === 0 ? (
-            <p className="rounded-2xl border border-dashed border-line bg-surface p-10 text-center text-muted">
-              {t.noProducts}
-            </p>
+            <p className="border border-dashed border-line-strong p-10 text-center text-muted">{t.noProducts}</p>
           ) : (
-            <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+            <ul className="grid grid-cols-2 border-s border-t border-line md:grid-cols-3 xl:grid-cols-4">
               {products.map((product) => (
-                <li key={product.id} className="flex">
+                <li key={product.id} className="border-b border-e border-line">
                   <ProductCard product={product} categoryId={categoryId} lang={lang} t={t} />
                 </li>
               ))}

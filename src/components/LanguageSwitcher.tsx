@@ -21,7 +21,7 @@ export function LanguageSwitcher({ current, label, switchToLabel }: Props) {
       aria-label={`${label}: ${switchToLabel}`}
       disabled={pending}
       onClick={() => startTransition(() => setLanguage(next))}
-      className="rounded-full border border-line px-4 py-1.5 text-sm font-medium transition hover:border-ink hover:bg-ink hover:text-surface disabled:cursor-wait disabled:opacity-60"
+      className="h-9 rounded-[4px] border border-white/25 px-3 text-sm font-semibold text-white transition-colors hover:border-white disabled:cursor-wait disabled:opacity-50"
     >
       {switchToLabel}
     </button>

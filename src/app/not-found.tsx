@@ -11,7 +11,7 @@ export default async function NotFound() {
       title={t.notFoundTitle}
       body={t.notFoundBody}
       action={
-        <Link href="/" className="rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-surface hover:opacity-90">
+        <Link href="/" className="btn btn-primary">
           {t.backHome}
         </Link>
       }

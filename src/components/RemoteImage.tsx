@@ -2,6 +2,7 @@
 
 import Image, { type ImageProps } from "next/image";
 import { useState } from "react";
+import { Icon } from "@/components/Icon";
 
 type Props = Omit<ImageProps, "src"> & { src: string | null };
 
@@ -14,16 +15,8 @@ export function RemoteImage({ src, alt, className, ...props }: Props) {
 
   if (!src || failed) {
     return (
-      <div
-        role="img"
-        aria-label={alt}
-        className={`flex size-full items-center justify-center bg-subtle text-muted ${className ?? ""}`}
-      >
-        <svg aria-hidden viewBox="0 0 24 24" className="size-10 opacity-40" fill="none" stroke="currentColor" strokeWidth={1.5}>
-          <rect x="3" y="4" width="18" height="16" rx="2" />
-          <circle cx="9" cy="10" r="2" />
-          <path d="m21 16-5-5-9 9" />
-        </svg>
+      <div role="img" aria-label={alt} className="flex size-full items-center justify-center bg-paper-2 text-line-strong">
+        <Icon name="image" className="size-1/4 max-h-12 max-w-12" />
       </div>
     );
   }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Breadcrumbs, type Crumb } from "@/components/Breadcrumbs";
+import { Icon } from "@/components/Icon";
 import { ProductDescription } from "@/components/ProductDescription";
 import { ProductGallery } from "@/components/ProductGallery";
 import { ProductOptions } from "@/components/ProductOptions";
@@ -57,39 +58,45 @@ export default async function ProductPage({ params, searchParams }: Props) {
   const price = formatPrice(product.price, lang);
   const { dimensions: d } = product;
   const size = [d.length, d.width, d.height].filter((v): v is number => v !== null);
-  const specs: [string, string | null][] = [
-    [t.sku, product.sku],
-    [t.model, product.model],
-    [t.type, product.type],
-    [t.source, product.source],
-    [t.weight, d.weight !== null ? `${d.weight} ${d.weight_class ?? ""}`.trim() : null],
-    [t.dimensions, size.length ? `${size.join(" × ")} ${d.length_class ?? ""}`.trim() : null],
+  // [label, value, isCode] — codes are set in mono so digits are easy to read back.
+  const specs: [string, string | null, boolean][] = [
+    [t.sku, product.sku, true],
+    [t.model, product.model, true],
+    [t.type, product.type, false],
+    [t.source, product.source, false],
+    [t.weight, d.weight !== null ? `${d.weight} ${d.weight_class ?? ""}`.trim() : null, false],
+    [t.dimensions, size.length ? `${size.join(" × ")} ${d.length_class ?? ""}`.trim() : null, false],
   ];
   const images = product.images.length ? product.images : product.image ? [product.image] : [];
+  const rating = product.rating.toFixed(1);
 
   return (
     <article>
       <Breadcrumbs items={crumbs} />
 
-      <div className="grid gap-10 lg:grid-cols-2">
+      <div className="grid gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-14">
         <ProductGallery
           images={images}
           name={product.name}
           labels={images.map((_, i) => t.imageOf(product.name, i + 1))}
         />
 
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-7 lg:sticky lg:top-24 lg:self-start">
           <header className="flex flex-col gap-3">
-            <h1 className="text-2xl font-bold leading-tight tracking-tight sm:text-3xl">{product.name}</h1>
-            <div className="flex flex-wrap items-center gap-3 text-sm text-muted">
-              <StockBadge inStock={product.in_stock} t={t} />
-              {product.in_stock && <span>{t.available(product.quantity)}</span>}
-              <span>★ {product.rating.toFixed(1)}</span>
-              <span>{t.reviews(product.reviews)}</span>
+            <h1 className="text-balance text-2xl font-bold leading-tight tracking-[-0.02em] sm:text-[1.75rem]">
+              {product.name}
+            </h1>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
+              <StockBadge inStock={product.in_stock} quantity={product.quantity} t={t} />
+              <span className="inline-flex items-center gap-1 tabular-nums" aria-label={t.ratingOutOf(rating)}>
+                <Icon name="star" className="size-3.5" />
+                {rating}
+              </span>
+              <span className="tabular-nums">{t.reviews(product.reviews)}</span>
             </div>
           </header>
 
-          {price && <p className="text-3xl font-semibold">{price}</p>}
+          {price && <p className="display border-y-2 border-ink py-4 text-6xl tabular-nums">{price}</p>}
 
           <ProductOptions
             options={product.options}
@@ -97,17 +104,18 @@ export default async function ProductPage({ params, searchParams }: Props) {
             currency={product.price.currency}
             locale={LOCALES[lang]}
             requiredLabel={t.required}
+            priceLabel={t.withOptions}
           />
 
-          <section className="rounded-2xl border border-line bg-surface p-5">
-            <h2 className="mb-3 font-semibold">{t.specifications}</h2>
-            <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
+          <section>
+            <h2 className="mb-1 text-sm font-semibold">{t.specifications}</h2>
+            <dl className="text-sm">
               {specs
-                .filter((spec): spec is [string, string] => Boolean(spec[1]))
-                .map(([label, value]) => (
-                  <div key={label} className="contents">
+                .filter((spec): spec is [string, string, boolean] => Boolean(spec[1]))
+                .map(([label, value, isCode]) => (
+                  <div key={label} className="grid grid-cols-[8rem_1fr] gap-4 border-b border-line py-2.5">
                     <dt className="text-muted">{label}</dt>
-                    <dd className="break-all font-medium">{value}</dd>
+                    <dd className={`break-all ${isCode ? "font-mono text-[0.8125rem]" : "font-medium"}`}>{value}</dd>
                   </div>
                 ))}
             </dl>
@@ -115,8 +123,8 @@ export default async function ProductPage({ params, searchParams }: Props) {
         </div>
       </div>
 
-      <section className="mt-12 rounded-2xl border border-line bg-surface p-6 sm:p-8">
-        <h2 className="mb-4 text-xl font-semibold">{t.description}</h2>
+      <section className="mt-16 border-t-2 border-ink pt-6">
+        <h2 className="display mb-6 text-4xl">{t.description}</h2>
         {product.description_html ? (
           <ProductDescription html={product.description_html} />
         ) : (

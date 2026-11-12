@@ -36,7 +36,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
           type="button"
           onClick={retry}
           disabled={pending}
-          className="rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-surface hover:opacity-90 disabled:cursor-wait disabled:opacity-60"
+          className="btn btn-primary disabled:cursor-wait"
         >
           {t.retry}
         </button>

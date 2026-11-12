@@ -1,43 +1,123 @@
 @import "tailwindcss";
 
+/*
+ * FatherShops catalogue theme — see DESIGN.md.
+ * Brand black + white paper, electric blue reserved for action and selection.
+ */
 :root {
-  --surface: #ffffff;
-  --canvas: #f7f7f5;
-  --subtle: #efeeea;
-  --ink: #18181b;
-  --muted: #6b6b73;
-  --line: #e4e3de;
-  --accent: #c2410c;
-  --success: #15803d;
-  --success-soft: #dcfce7;
-  --danger: #b91c1c;
-  --danger-soft: #fee2e2;
+  --paper: #ffffff;
+  --paper-2: #f3f4f6;
+  --ink: #0a0a0b;
+  --ink-2: #2b2e34;
+  --muted: #5b616b;
+  --line: #e2e4e8;
+  --line-strong: #c4c8cf;
+  /* Brand blue (#037EF3) is 3.9:1 on white: fills and large type only.
+     --blue is the text-safe shade (5.6:1). */
+  --blue: #0062cc;
+  --blue-bright: #037ef3;
+  --success: #0f7a43;
+  --danger: #c0262d;
+
+  color-scheme: light;
+  scrollbar-color: var(--line-strong) transparent;
 }
 
 @theme inline {
-  --color-surface: var(--surface);
-  --color-canvas: var(--canvas);
-  --color-subtle: var(--subtle);
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
   --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
   --color-muted: var(--muted);
   --color-line: var(--line);
-  --color-accent: var(--accent);
+  --color-line-strong: var(--line-strong);
+  --color-blue: var(--blue);
+  --color-blue-bright: var(--blue-bright);
   --color-success: var(--success);
-  --color-success-soft: var(--success-soft);
   --color-danger: var(--danger);
-  --color-danger-soft: var(--danger-soft);
-  --font-sans: var(--font-geist-sans), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
-  --font-ar: var(--font-arabic), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-ar: var(--font-kufi), var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace;
 }
 
 body {
-  background: var(--canvas);
+  background: var(--paper);
   color: var(--ink);
+  caret-color: var(--blue);
+}
+
+::selection {
+  background: var(--blue-bright);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+a {
+  text-underline-offset: 0.2em;
+}
+
+@layer components {
+  /* Condensed catalogue headline. Arabic (Kufi) has no width axis, so it keeps its own proportions. */
+  .display {
+    font-stretch: 72%;
+    font-weight: 800;
+    letter-spacing: -0.015em;
+    line-height: 0.92;
+    text-transform: uppercase;
+  }
+
+  :lang(ar) .display {
+    letter-spacing: 0;
+    line-height: 1.25;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 2.75rem;
+    padding-inline: 1.25rem;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    transition: background-color 160ms ease-out, color 160ms ease-out, border-color 160ms ease-out;
+  }
+
+  .btn-primary {
+    background: var(--blue);
+    color: #fff;
+  }
+
+  .btn-primary:hover {
+    background: var(--blue-bright);
+  }
+
+  .btn-outline {
+    border: 1px solid var(--line-strong);
+    color: var(--ink);
+  }
+
+  .btn-outline:hover {
+    border-color: var(--ink);
+  }
+
+  .btn:disabled,
+  .btn[aria-disabled="true"] {
+    opacity: 0.4;
+    pointer-events: none;
+  }
 }
 
 /* Sanitised third-party product description HTML */
 .product-description {
+  max-width: 860px;
   line-height: 1.7;
+  color: var(--ink-2);
   overflow-wrap: anywhere;
 }
 
@@ -49,8 +129,7 @@ body {
   display: block;
   max-width: 100%;
   height: auto;
-  margin-block: 0.75rem;
-  border-radius: 0.75rem;
+  margin-block: 1rem;
 }
 
 .product-description ul,
@@ -71,6 +150,6 @@ body {
 }
 
 .product-description a {
-  color: var(--accent);
+  color: var(--blue);
   text-decoration: underline;
 }
