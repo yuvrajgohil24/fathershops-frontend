@@ -7,18 +7,18 @@ import { ProductGallery } from "@/components/ProductGallery";
 import { ProductOptions } from "@/components/ProductOptions";
 import { StockBadge } from "@/components/StockBadge";
 import { NotFoundError, getCategories, getProduct } from "@/lib/api";
-import { LOCALES, formatPrice, parsePositiveInt } from "@/lib/format";
+import { LOCALES, formatMoney, formatPrice, parsePositiveInt } from "@/lib/format";
 import { getI18n } from "@/lib/language";
-import type { Language, Product } from "@/lib/types";
+import type { CurrencyCode, Language, ProductResponse } from "@/lib/types";
 
 interface Props {
   params: Promise<{ productId: string }>;
   searchParams: Promise<{ category?: string | string[] }>;
 }
 
-async function load(productId: number, lang: Language): Promise<Product> {
+async function load(productId: number, lang: Language, currency: CurrencyCode): Promise<ProductResponse> {
   try {
-    return await getProduct(productId, lang);
+    return await getProduct(productId, { lang, currency });
   } catch (error) {
     if (error instanceof NotFoundError) notFound();
     throw error;
@@ -29,8 +29,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const productId = parsePositiveInt((await params).productId);
   if (!productId) return {};
 
-  const { lang } = await getI18n();
-  const product = await load(productId, lang);
+  const { lang, currency } = await getI18n();
+  const { data: product } = await load(productId, lang, currency);
 
   return {
     title: product.meta.title ?? product.name,
@@ -43,8 +43,8 @@ export default async function ProductPage({ params, searchParams }: Props) {
   const productId = parsePositiveInt((await params).productId);
   if (!productId) notFound();
 
-  const { lang, t } = await getI18n();
-  const product = await load(productId, lang);
+  const { lang, t, currency } = await getI18n();
+  const { data: product, currency: pricing } = await load(productId, lang, currency);
 
   const crumbs: Crumb[] = [{ label: t.home, href: "/" }];
   const fromCategory = parsePositiveInt((await searchParams).category);
@@ -96,7 +96,35 @@ export default async function ProductPage({ params, searchParams }: Props) {
             </div>
           </header>
 
-          {price && <p className="display border-y-2 border-ink py-4 text-6xl tabular-nums">{price}</p>}
+          {price && (
+            <div className="rounded-2xl border border-line bg-paper-2 p-5 shadow-2xs">
+              <span className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted">
+                {lang === "ar" ? "السعر" : "Price"}
+              </span>
+              <p className="text-4xl font-extrabold tracking-tight tabular-nums text-ink sm:text-5xl">
+                {pricing.approximate && <span className="me-1 font-semibold text-muted">{t.approxPrefix}</span>}
+                {price}
+              </p>
+              {pricing.approximate && (
+                <p className="mt-2 text-xs leading-relaxed text-muted">
+                  {t.approxNote(pricing.store_currency)}{" "}
+                  <span className="font-semibold tabular-nums text-ink-2">
+                    ({formatMoney(product.price.store_amount, product.price.store_currency, lang)})
+                  </span>
+                  {pricing.rates_updated_at && (
+                    <>
+                      {" · "}
+                      {t.ratesAsOf(
+                        new Intl.DateTimeFormat(LOCALES[lang], { dateStyle: "medium" }).format(
+                          new Date(pricing.rates_updated_at),
+                        ),
+                      )}
+                    </>
+                  )}
+                </p>
+              )}
+            </div>
+          )}
 
           <ProductOptions
             options={product.options}
@@ -105,17 +133,20 @@ export default async function ProductPage({ params, searchParams }: Props) {
             locale={LOCALES[lang]}
             requiredLabel={t.required}
             priceLabel={t.withOptions}
+            inStock={product.in_stock}
+            addToCartLabel={t.addToCart}
+            addedToCartLabel={t.addedToCart}
           />
 
-          <section>
-            <h2 className="mb-1 text-sm font-semibold">{t.specifications}</h2>
+          <section className="rounded-2xl border border-line bg-paper p-5 shadow-2xs">
+            <h2 className="mb-3 text-xs font-bold uppercase tracking-wider text-muted">{t.specifications}</h2>
             <dl className="text-sm">
               {specs
                 .filter((spec): spec is [string, string, boolean] => Boolean(spec[1]))
                 .map(([label, value, isCode]) => (
-                  <div key={label} className="grid grid-cols-[8rem_1fr] gap-4 border-b border-line py-2.5">
+                  <div key={label} className="grid grid-cols-[8rem_1fr] gap-4 border-b border-line/60 py-2.5 last:border-0">
                     <dt className="text-muted">{label}</dt>
-                    <dd className={`break-all ${isCode ? "font-mono text-[0.8125rem]" : "font-medium"}`}>{value}</dd>
+                    <dd className={`break-all ${isCode ? "font-mono text-[0.8125rem] text-ink-2" : "font-medium text-ink"}`}>{value}</dd>
                   </div>
                 ))}
             </dl>
@@ -123,8 +154,8 @@ export default async function ProductPage({ params, searchParams }: Props) {
         </div>
       </div>
 
-      <section className="mt-16 border-t-2 border-ink pt-6">
-        <h2 className="display mb-6 text-4xl">{t.description}</h2>
+      <section className="mt-14 rounded-2xl border border-line bg-paper p-6 shadow-2xs sm:p-8">
+        <h2 className="mb-6 text-2xl font-bold tracking-tight text-ink sm:text-3xl">{t.description}</h2>
         {product.description_html ? (
           <ProductDescription html={product.description_html} />
         ) : (

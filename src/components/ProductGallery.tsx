@@ -16,7 +16,7 @@ export function ProductGallery({ images, name, labels }: Props) {
 
   return (
     <div className="flex flex-col gap-3 lg:flex-row-reverse">
-      <div className="relative aspect-square flex-1 overflow-hidden bg-paper-2">
+      <div className="relative aspect-square flex-1 overflow-hidden rounded-2xl border border-line bg-paper-2 shadow-2xs">
         <RemoteImage
           key={current ?? "empty"}
           src={current}
@@ -36,8 +36,8 @@ export function ProductGallery({ images, name, labels }: Props) {
                 onClick={() => setActive(i)}
                 aria-label={labels[i]}
                 aria-pressed={i === active}
-                className={`relative block size-16 overflow-hidden bg-paper-2 outline-offset-0 transition-[box-shadow] duration-150 lg:size-20 ${
-                  i === active ? "shadow-[inset_0_0_0_2px_var(--ink)]" : "hover:shadow-[inset_0_0_0_1px_var(--line-strong)]"
+                className={`relative block size-16 overflow-hidden rounded-xl border bg-paper-2 outline-offset-0 transition-all duration-150 lg:size-20 ${
+                  i === active ? "border-blue ring-2 ring-blue/25" : "border-line hover:border-line-strong"
                 }`}
               >
                 <RemoteImage src={src} alt="" fill sizes="80px" className="object-cover" />

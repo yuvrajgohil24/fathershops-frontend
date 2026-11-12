@@ -1,8 +1,9 @@
 import Link from "next/link";
+import { CurrencySwitcher } from "@/components/CurrencySwitcher";
 import { Icon } from "@/components/Icon";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import type { Dictionary } from "@/lib/i18n";
-import type { Language } from "@/lib/types";
+import type { CurrencyCode, Language } from "@/lib/types";
 
 export function Wordmark({ t }: { t: Dictionary }) {
   return (
@@ -13,7 +14,7 @@ export function Wordmark({ t }: { t: Dictionary }) {
   );
 }
 
-export function SiteHeader({ lang, t }: { lang: Language; t: Dictionary }) {
+export function SiteHeader({ lang, t, currency }: { lang: Language; t: Dictionary; currency: CurrencyCode }) {
   return (
     <header className="sticky top-0 z-30 bg-ink text-white">
       <div className="mx-auto flex h-14 max-w-[1400px] items-center justify-between gap-6 px-4 sm:px-8">
@@ -24,6 +25,7 @@ export function SiteHeader({ lang, t }: { lang: Language; t: Dictionary }) {
           <Link href="/" className="hidden rounded-[4px] px-3 py-2 text-white/80 transition-colors hover:text-white sm:block">
             {t.categories}
           </Link>
+          <CurrencySwitcher current={currency} label={t.currency} />
           <LanguageSwitcher current={lang} label={t.language} switchToLabel={t.switchTo} />
         </nav>
       </div>

@@ -3,8 +3,9 @@ import "server-only";
 import type {
   Category,
   CategoryProductsResponse,
+  CurrencyCode,
   Language,
-  Product,
+  ProductResponse,
 } from "@/lib/types";
 
 const API_URL = (process.env.FATHERSHOP_API_URL ?? "http://127.0.0.1:8000/api/v1").replace(/\/+$/, "");
@@ -67,18 +68,19 @@ export async function getCategories(): Promise<Category[]> {
   return data;
 }
 
+/** Prices come back already converted to `currency` by the API (one request, no per-product lookups). */
+export function getProduct(productId: number, { lang, currency }: { lang: Language; currency: CurrencyCode }): Promise<ProductResponse> {
+  return request<ProductResponse>(`/products/${productId}`, { lang, currency });
+}
+
 export function getCategoryProducts(
   categoryId: number,
-  { page = 1, perPage = 12, lang }: { page?: number; perPage?: number; lang: Language },
+  { page = 1, perPage = 12, lang, currency }: { page?: number; perPage?: number; lang: Language; currency: CurrencyCode },
 ): Promise<CategoryProductsResponse> {
   return request<CategoryProductsResponse>(`/categories/${categoryId}/products`, {
     page,
     per_page: perPage,
     lang,
+    currency,
   });
-}
-
-export async function getProduct(productId: number, lang: Language): Promise<Product> {
-  const { data } = await request<{ data: Product }>(`/products/${productId}`, { lang });
-  return data;
 }

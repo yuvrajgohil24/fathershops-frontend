@@ -83,6 +83,13 @@ src/
   a server action. Pages pass `lang` to the API, and the layout switches
   `dir="rtl"` and the Arabic font. Category names have no upstream translation,
   so they stay as provided.
+- **Currency**: the header dropdown (SAR, USD, INR, GBP) sets an httpOnly `currency`
+  cookie the same way. Pages pass `currency` to the API, which returns prices already
+  converted, so the frontend never guesses a currency or does conversion maths. Each
+  currency is a separate URL and so a separate cache entry. Converted prices show `≈`, and the
+  product page notes the original SAR price, that the store charges in SAR, and the
+  rates date. The list in `lib/currency.ts` must stay within the API's
+  `SUPPORTED_CURRENCIES`.
 - Images use `next/image` (optimised, lazy loaded); allowed hosts are listed in
   `next.config.ts`.
 

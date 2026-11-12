@@ -7,20 +7,41 @@ import type { ProductOption } from "@/lib/types";
 interface Props {
   options: ProductOption[];
   basePrice: number | null;
-  currency: string | null;
+  /** Currency the API priced this product (and its option surcharges) in. */
+  currency: string;
   locale: string;
   requiredLabel: string;
   priceLabel: string;
+  inStock?: boolean;
+  addToCartLabel?: string;
+  addedToCartLabel?: string;
 }
 
 /**
  * Lets the shopper pick option values and shows the resulting price
- * (each value carries a +/- price adjustment).
+ * (each value carries a +/- price adjustment) with quantity and add to cart action.
  */
-export function ProductOptions({ options, basePrice, currency, locale, requiredLabel, priceLabel }: Props) {
+export function ProductOptions({
+  options,
+  basePrice,
+  currency,
+  locale,
+  requiredLabel,
+  priceLabel,
+  inStock = true,
+  addToCartLabel = "Add to cart",
+  addedToCartLabel = "Added to cart!",
+}: Props) {
   const [selected, setSelected] = useState<Record<number, number>>(() =>
     Object.fromEntries(options.filter((o) => o.values.length > 0).map((o) => [o.id, o.values[0].id])),
   );
+  const [quantity, setQuantity] = useState(1);
+  const [added, setAdded] = useState(false);
+
+  const handleAddToCart = () => {
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
 
   const total = useMemo(() => {
     if (basePrice === null) return null;
@@ -34,12 +55,12 @@ export function ProductOptions({ options, basePrice, currency, locale, requiredL
 
   const format = (n: number) =>
     new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency,
+      currencyDisplay: "narrowSymbol",
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-      ...(currency ? { style: "currency", currency } : {}),
     }).format(n);
-
-  if (options.length === 0) return null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -84,12 +105,54 @@ export function ProductOptions({ options, basePrice, currency, locale, requiredL
           </fieldset>
         );
       })}
-      {total !== null && total !== basePrice && (
-        <p className="flex items-baseline gap-2 text-sm text-muted">
-          {priceLabel}
-          <span className="display text-2xl tabular-nums text-ink">{format(total)}</span>
-        </p>
-      )}
+      
+      <div className="flex flex-col gap-3">
+        {total !== null && total !== basePrice && (
+          <p className="flex items-baseline gap-2 text-sm text-muted">
+            {priceLabel}
+            <span className="display text-2xl tabular-nums text-ink">{format(total)}</span>
+          </p>
+        )}
+
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 items-center rounded-[4px] border border-line-strong bg-paper">
+            <button
+              type="button"
+              disabled={!inStock || quantity <= 1}
+              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              className="flex size-11 items-center justify-center text-base font-semibold text-ink transition-colors hover:bg-paper-2 disabled:opacity-40"
+              aria-label="Decrease quantity"
+            >
+              −
+            </button>
+            <span className="w-10 text-center font-semibold tabular-nums text-ink">{quantity}</span>
+            <button
+              type="button"
+              disabled={!inStock}
+              onClick={() => setQuantity((q) => q + 1)}
+              className="flex size-11 items-center justify-center text-base font-semibold text-ink transition-colors hover:bg-paper-2 disabled:opacity-40"
+              aria-label="Increase quantity"
+            >
+              +
+            </button>
+          </div>
+
+          <button
+            type="button"
+            disabled={!inStock}
+            onClick={handleAddToCart}
+            className={`btn flex-1 transition-all duration-200 ${
+              added
+                ? "bg-success text-white"
+                : inStock
+                  ? "btn-primary"
+                  : "cursor-not-allowed bg-paper-2 text-muted"
+            }`}
+          >
+            {added ? addedToCartLabel : addToCartLabel}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

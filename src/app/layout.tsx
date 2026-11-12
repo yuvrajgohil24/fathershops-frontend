@@ -19,12 +19,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const { lang, t } = await getI18n();
+  const { lang, t, currency } = await getI18n();
 
   return (
     <html lang={lang} dir={direction(lang)} className={`${archivo.variable} ${kufi.variable}`}>
       <body className={`${lang === "ar" ? "font-ar" : "font-sans"} flex min-h-dvh flex-col antialiased`}>
-        <SiteHeader lang={lang} t={t} />
+        <SiteHeader lang={lang} t={t} currency={currency} />
         <main className="mx-auto w-full max-w-[1400px] flex-1 px-4 pb-20 pt-8 sm:px-8 sm:pt-12">{children}</main>
         <SiteFooter t={t} />
       </body>

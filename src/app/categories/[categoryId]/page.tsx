@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { CategoryProductList } from "@/components/CategoryProductList";
 import { Pagination } from "@/components/Pagination";
-import { ProductCard } from "@/components/ProductCard";
 import { NotFoundError, getCategories, getCategoryProducts } from "@/lib/api";
 import { parsePositiveInt } from "@/lib/format";
 import { getI18n } from "@/lib/language";
-import type { Category, CategoryProductsResponse, Language } from "@/lib/types";
+import type { Category, CategoryProductsResponse, CurrencyCode, Language } from "@/lib/types";
 
 const PER_PAGE = 12;
 
@@ -16,9 +16,14 @@ interface Props {
   searchParams: Promise<{ page?: string | string[] }>;
 }
 
-async function load(categoryId: number, page: number, lang: Language): Promise<CategoryProductsResponse> {
+async function load(
+  categoryId: number,
+  page: number,
+  lang: Language,
+  currency: CurrencyCode,
+): Promise<CategoryProductsResponse> {
   try {
-    return await getCategoryProducts(categoryId, { page, perPage: PER_PAGE, lang });
+    return await getCategoryProducts(categoryId, { page, perPage: PER_PAGE, lang, currency });
   } catch (error) {
     if (error instanceof NotFoundError) notFound();
     throw error;
@@ -29,8 +34,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const categoryId = parsePositiveInt((await params).categoryId);
   if (!categoryId) return {};
 
-  const { lang, t } = await getI18n();
-  const { category } = await load(categoryId, 1, lang);
+  const { lang, t, currency } = await getI18n();
+  const { category } = await load(categoryId, 1, lang, currency);
 
   return { title: category.name ?? t.category(categoryId) };
 }
@@ -42,8 +47,8 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
   if (!categoryId || !page) notFound();
 
-  const { lang, t } = await getI18n();
-  const { data: products, meta, category } = await load(categoryId, page, lang);
+  const { lang, t, currency } = await getI18n();
+  const { data: products, meta, category } = await load(categoryId, page, lang, currency);
 
   if (page > 1 && page > meta.last_page) notFound();
 
@@ -88,12 +93,12 @@ export default async function CategoryPage({ params, searchParams }: Props) {
                     <Link
                       href={`/categories/${c.id}`}
                       aria-current={active ? "page" : undefined}
-                      className={`flex items-center gap-2 rounded-[4px] px-3 py-2 text-sm transition-colors lg:px-2 ${
-                        c.parent_id ? "lg:ps-6" : ""
+                      className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-all lg:px-3 ${
+                        c.parent_id ? "lg:ps-6 text-xs text-muted" : ""
                       } ${
                         active
-                          ? "bg-ink font-semibold text-white"
-                          : "border border-line text-ink-2 hover:border-ink lg:border-transparent lg:hover:border-transparent lg:hover:bg-paper-2"
+                          ? "bg-blue font-semibold text-white shadow-xs"
+                          : "border border-line text-ink-2 hover:border-blue lg:border-transparent lg:hover:border-transparent lg:hover:bg-paper-2"
                       }`}
                     >
                       {c.name ?? t.category(c.id)}
@@ -106,17 +111,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         )}
 
         <section aria-label={t.products}>
-          {products.length === 0 ? (
-            <p className="border border-dashed border-line-strong p-10 text-center text-muted">{t.noProducts}</p>
-          ) : (
-            <ul className="grid grid-cols-2 border-s border-t border-line md:grid-cols-3 xl:grid-cols-4">
-              {products.map((product) => (
-                <li key={product.id} className="border-b border-e border-line">
-                  <ProductCard product={product} categoryId={categoryId} lang={lang} t={t} />
-                </li>
-              ))}
-            </ul>
-          )}
+          <CategoryProductList products={products} categoryId={categoryId} lang={lang} />
 
           <Pagination basePath={`/categories/${categoryId}`} page={meta.current_page} lastPage={meta.last_page} t={t} />
         </section>

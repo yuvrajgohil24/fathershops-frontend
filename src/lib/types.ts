@@ -7,10 +7,23 @@ export interface Category {
   image: string | null;
 }
 
+export type CurrencyCode = "SAR" | "USD" | "INR" | "GBP";
+
+/** Selling price in the display currency, plus the store-currency original. */
 export interface Price {
   amount: number | null;
-  base_amount: number | null;
-  currency: string | null;
+  currency: string;
+  store_amount: number | null;
+  store_currency: string;
+}
+
+/** How prices in a response were produced (see the API's `currency` block). */
+export interface CurrencyMeta {
+  code: string;
+  store_currency: string;
+  rate: number;
+  approximate: boolean;
+  rates_updated_at: string | null;
 }
 
 export interface ProductSummary {
@@ -77,4 +90,10 @@ export interface CategoryProductsResponse {
   data: ProductSummary[];
   meta: PaginationMeta;
   category: Category;
+  currency: CurrencyMeta;
+}
+
+export interface ProductResponse {
+  data: Product;
+  currency: CurrencyMeta;
 }
