@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+:root {
+  --surface: #ffffff;
+  --canvas: #f7f7f5;
+  --subtle: #efeeea;
+  --ink: #18181b;
+  --muted: #6b6b73;
+  --line: #e4e3de;
+  --accent: #c2410c;
+  --success: #15803d;
+  --success-soft: #dcfce7;
+  --danger: #b91c1c;
+  --danger-soft: #fee2e2;
+}
+
+@theme inline {
+  --color-surface: var(--surface);
+  --color-canvas: var(--canvas);
+  --color-subtle: var(--subtle);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --font-sans: var(--font-geist-sans), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
+  --font-ar: var(--font-arabic), var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--ink);
+}
+
+/* Sanitised third-party product description HTML */
+.product-description {
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.product-description p {
+  margin-block: 0.75rem;
+}
+
+.product-description img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-block: 0.75rem;
+  border-radius: 0.75rem;
+}
+
+.product-description ul,
+.product-description ol {
+  padding-inline-start: 1.25rem;
+  list-style: revert;
+}
+
+.product-description table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.product-description td,
+.product-description th {
+  border: 1px solid var(--line);
+  padding: 0.5rem;
+}
+
+.product-description a {
+  color: var(--accent);
+  text-decoration: underline;
+}
